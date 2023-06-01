@@ -296,4 +296,8 @@ spec:
         {{- else }}
       serviceAccountName: {{ template "application.name" . }}
       {{- end }}
+      {{- if .Values.deployment.hostNetwork }}
+      hostNetwork: {{ .Values.deployment.hostNetwork }}
+      {{- end }}
+      dnsPolicy: {{ .Values.deployment.dnsPolicy }}
 {{- end }}
