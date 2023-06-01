@@ -14,6 +14,9 @@ metadata:
 {{ include "application.tplvalues.render" ( dict "value" .Values.service.annotations  "context" $ ) | indent 4 }}
 {{- end }}
 spec:
+{{- if .Values.service.clusterIP }}  
+  clusterIP: "{{ .Values.service.clusterIP }}"
+{{- end }}
 {{- if .Values.service.type }}  
   type: "{{ .Values.service.type }}"
 {{- end }}
