@@ -35,6 +35,10 @@ spec:
         metadata:
           labels:
           {{- include "application.labels" $ | nindent 12 }}
+          {{- with $job.additionalPodAnnotations }}
+          annotations:
+          {{ $job.additionalPodAnnotations | indent 12 }}
+          {{- end }}
         spec:
           {{- if $.Values.rbac.serviceAccount.name }}
           serviceAccountName: {{ $.Values.rbac.serviceAccount.name }}
