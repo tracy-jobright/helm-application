@@ -37,7 +37,7 @@ spec:
           {{- include "application.labels" $ | nindent 12 }}
           {{- with $job.additionalPodAnnotations }}
           annotations:
-          {{ $job.additionalPodAnnotations | indent 12 }}
+          {{- $job.additionalPodAnnotations | toYaml | nindent 12 }}
           {{- end }}
         spec:
           {{- if $.Values.rbac.serviceAccount.name }}
