@@ -82,6 +82,10 @@ spec:
             volumeMounts:
 {{ toYaml . | indent 12 }}
             {{- end }}
+            {{- with $job.containerSecurityContext }}
+            securityContext:
+{{ toYaml . | indent 14 }}
+            {{- end }}
           {{- with $job.nodeSelector }}
           nodeSelector:
 {{ toYaml . | indent 12 }}
