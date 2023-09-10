@@ -14,6 +14,8 @@ spec:
       labels: {{- include "chart.selectorLabels" . | nindent 8 }}
     spec:
       affinity: {{- toYaml .Values.affinity | nindent 8 }}
+      hostNetwork: {{ .Values.hostNetwork }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
       containers:
       - args:
         - -namespace
