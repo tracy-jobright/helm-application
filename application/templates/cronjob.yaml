@@ -35,6 +35,10 @@ spec:
         metadata:
           labels:
           {{- include "application.labels" $ | nindent 12 }}
+          {{- with $job.additionalPodAnnotations }}
+          annotations:
+          {{- $job.additionalPodAnnotations | toYaml | nindent 12 }}
+          {{- end }}
         spec:
           {{- if $.Values.rbac.serviceAccount.name }}
           serviceAccountName: {{ $.Values.rbac.serviceAccount.name }}
@@ -77,6 +81,10 @@ spec:
             {{- with $job.volumeMounts }}
             volumeMounts:
 {{ toYaml . | indent 12 }}
+            {{- end }}
+            {{- with $job.containerSecurityContext }}
+            securityContext:
+{{ toYaml . | indent 14 }}
             {{- end }}
           {{- with $job.nodeSelector }}
           nodeSelector:

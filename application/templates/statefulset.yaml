@@ -1,0 +1,244 @@
+{{- if (.Values.statefulSet).enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+  {{- include "application.labels" . | nindent 4 }}
+{{- if .Values.statefulSet.additionalLabels }}
+{{ toYaml .Values.statefulSet.additionalLabels | indent 4 }}
+{{- end }}
+{{- if or .Values.statefulSet.annotations .Values.statefulSet.reloadOnChange }}
+  annotations:
+{{- end }}
+{{- if .Values.statefulSet.annotations }}
+{{ toYaml .Values.statefulSet.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.statefulSet.reloadOnChange }} 
+    reloader.stakater.com/auto: "true"
+{{- end }}
+  name: {{ template "application.name" . }}
+  namespace: {{ include "application.namespace" . }}
+spec:
+{{- if .Values.statefulSet.replicas }}
+  replicas: {{ .Values.statefulSet.replicas }}
+{{- end }}
+  selector:
+    matchLabels:
+{{ include "application.selectorLabels" . | indent 6 }}
+  {{- if .Values.statefulSet.strategy }}
+  updateStrategy:
+{{ toYaml .Values.statefulSet.strategy | indent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+{{ include "application.selectorLabels" . | indent 8 }}
+{{- if .Values.statefulSet.podLabels }}
+{{ toYaml .Values.statefulSet.podLabels | indent 8 }}
+{{- end }}
+{{- if or .Values.statefulSet.additionalPodAnnotations .Values.statefulSet.fluentdConfigAnnotations }}
+      annotations:
+{{- end }}
+{{- with .Values.statefulSet.additionalPodAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.statefulSet.hostAliases }}
+      hostAliases:      
+{{ toYaml .Values.statefulSet.hostAliases | indent 6 }}
+      {{- end }}
+      {{- if .Values.statefulSet.initContainers }}
+      initContainers:
+  {{- range $key, $value := .Values.statefulSet.initContainers  }}
+      - name: {{ $key }}
+{{ include "application.tplvalues.render" ( dict "value" $value "context" $ ) | indent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.statefulSet.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.statefulSet.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.statefulSet.tolerations }}
+      tolerations:
+{{ toYaml .Values.statefulSet.tolerations | indent 8 -}}
+      {{- end }}
+      {{- if .Values.statefulSet.affinity }}
+      affinity:
+{{ toYaml .Values.statefulSet.affinity | indent 8 -}}
+      {{- end }}
+      {{- with .Values.statefulSet.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.statefulSet.imagePullSecrets }}      
+      imagePullSecrets:
+      - name: {{ .Values.statefulSet.imagePullSecrets }}
+      {{- end }}
+      containers:
+      - name: {{ template "application.name" . }}
+
+        {{- $image := required "Undefined image for application container" .Values.statefulSet.image.repository }}
+        {{- with .Values.statefulSet.image.tag    }} {{- $image = print $image ":" . }} {{- end }}
+        {{- with .Values.statefulSet.image.digest }} {{- $image = print $image "@" . }} {{- end }}
+        image: {{ $image }}
+
+        imagePullPolicy: {{ .Values.statefulSet.image.pullPolicy }}
+        {{- if .Values.statefulSet.command }}
+        command: {{- include "application.tplvalues.render" (dict "value" .Values.statefulSet.command "context" $) | nindent 12 }}
+        {{- end }}
+        {{- if .Values.statefulSet.args }}
+        args: {{- include "application.tplvalues.render" (dict "value" .Values.statefulSet.args "context" $) | nindent 12 }}
+        {{- end }}
+        {{- if .Values.statefulSet.ports }}
+        ports:
+{{ toYaml .Values.statefulSet.ports | indent 10 }}
+        {{- end }}
+        {{- if .Values.statefulSet.envFrom }}
+        envFrom:
+        {{- range $value := .Values.statefulSet.envFrom }}
+        {{- if (eq .type "configmap") }}
+        - configMapRef:
+            {{- if .name }}
+            name: {{ include "application.tplvalues.render" ( dict "value" $value.name "context" $ ) }}
+            {{- else if .nameSuffix }}
+            name: {{ template "application.name" $ }}-{{ include "application.tplvalues.render" ( dict "value" $value.nameSuffix "context" $ ) }}
+            {{- else }}
+            name: {{ template "application.name" $ }}
+            {{- end }}
+        {{- end }}
+        {{- if (eq .type "secret") }}
+        - secretRef:
+            {{- if .name }}
+            name: {{ include "application.tplvalues.render" ( dict "value" $value.name "context" $ ) }}
+            {{- else if .nameSuffix }}
+            name: {{ template "application.name" $ }}-{{ include "application.tplvalues.render" ( dict "value" $value.nameSuffix "context" $ ) }}
+            {{- else }}
+            name: {{ template "application.name" $ }}
+            {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.statefulSet.env }}
+        env:
+        {{- range $key, $value := .Values.statefulSet.env }}
+        - name: {{ include "application.tplvalues.render" ( dict "value" $key "context" $ ) }}
+{{ include "application.tplvalues.render" ( dict "value" $value "context" $ ) | indent 10 }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.statefulSet.startupProbe.enabled }}
+        startupProbe:
+          failureThreshold: {{ .Values.statefulSet.startupProbe.failureThreshold }}
+          periodSeconds: {{ .Values.statefulSet.startupProbe.periodSeconds }}
+          successThreshold: {{ .Values.statefulSet.startupProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.statefulSet.startupProbe.timeoutSeconds }}
+          initialDelaySeconds: {{ .Values.statefulSet.startupProbe.initialDelaySeconds }}
+          {{- if .Values.statefulSet.startupProbe.exec }}
+          exec:
+            {{- toYaml .Values.statefulSet.startupProbe.exec | nindent 12 }}
+          {{- else if .Values.statefulSet.startupProbe.httpGet }}
+          httpGet:
+            {{- toYaml .Values.statefulSet.startupProbe.httpGet | nindent 12 }}
+          {{- else if .Values.statefulSet.startupProbe.tcpSocket }}
+          tcpSocket:
+            {{- toYaml .Values.statefulSet.startupProbe.tcpSocket | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.statefulSet.livenessProbe.enabled }} 
+        livenessProbe:
+          failureThreshold: {{ .Values.statefulSet.livenessProbe.failureThreshold }}
+          periodSeconds: {{ .Values.statefulSet.livenessProbe.periodSeconds }}
+          successThreshold: {{ .Values.statefulSet.livenessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.statefulSet.livenessProbe.timeoutSeconds }}
+          initialDelaySeconds: {{ .Values.statefulSet.livenessProbe.initialDelaySeconds }}
+          {{- if .Values.statefulSet.livenessProbe.exec }}
+          exec:
+            {{- toYaml .Values.statefulSet.livenessProbe.exec | nindent 12 }}
+          {{- else if .Values.statefulSet.livenessProbe.httpGet }}
+          httpGet:
+            {{- toYaml .Values.statefulSet.livenessProbe.httpGet | nindent 12 }}
+          {{- else if .Values.statefulSet.livenessProbe.tcpSocket }}
+          tcpSocket:
+            {{- toYaml .Values.statefulSet.livenessProbe.tcpSocket | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.statefulSet.readinessProbe.enabled }} 
+        readinessProbe:
+          failureThreshold: {{ .Values.statefulSet.readinessProbe.failureThreshold }}
+          periodSeconds: {{ .Values.statefulSet.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.statefulSet.readinessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.statefulSet.readinessProbe.timeoutSeconds }}
+          initialDelaySeconds: {{ .Values.statefulSet.readinessProbe.initialDelaySeconds }}
+          {{- if .Values.statefulSet.readinessProbe.exec }}
+          exec:
+            {{- toYaml .Values.statefulSet.readinessProbe.exec | nindent 12 }}
+          {{- else if .Values.statefulSet.readinessProbe.httpGet }}
+          httpGet:
+            {{- toYaml .Values.statefulSet.readinessProbe.httpGet | nindent 12 }}
+          {{- else if .Values.statefulSet.readinessProbe.tcpSocket }}
+          tcpSocket:
+            {{- toYaml .Values.statefulSet.readinessProbe.tcpSocket | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- if or (.Values.statefulSet.volumeMounts) (and (eq .Values.persistence.enabled true) (eq .Values.persistence.mountPVC true) )}} 
+        volumeMounts:
+        {{- if (eq .Values.persistence.mountPVC true) }}
+        - mountPath: {{ .Values.persistence.mountPath }}
+          name: {{ template "application.name" . }}-data
+        {{- end }}
+        {{- if .Values.statefulSet.volumeMounts }}
+        {{- range $key, $value := .Values.statefulSet.volumeMounts }}
+        - name: {{ $key }}
+{{  include "application.tplvalues.render" ( dict "value" $value "context" $ ) | indent 10 }} 	
+        {{- end }}
+        {{- end }}
+      {{- end }}
+        resources:
+          limits:
+            memory: {{ .Values.statefulSet.resources.limits.memory }}
+            cpu: {{ .Values.statefulSet.resources.limits.cpu }}
+          requests:
+            memory: {{ .Values.statefulSet.resources.requests.memory }}
+            cpu: {{ .Values.statefulSet.resources.requests.cpu }}
+        {{- if .Values.statefulSet.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.statefulSet.containerSecurityContext | indent 10 }}
+        {{- end }}
+        {{- if .Values.statefulSet.additionalContainers }}
+{{ toYaml .Values.statefulSet.additionalContainers | indent 6 }}
+        {{- end }}
+        {{- if .Values.statefulSet.securityContext }}
+      securityContext:      
+{{ toYaml .Values.statefulSet.securityContext | indent 8 }}
+          {{- end }}
+      {{- if .Values.statefulSet.dnsConfig }}
+      dnsConfig:      
+{{ toYaml .Values.statefulSet.dnsConfig | indent 8 }}
+          {{- end }}
+      {{- if or (.Values.statefulSet.openshiftOAuthProxy.enabled) (.Values.statefulSet.volumes) (and (eq .Values.persistence.enabled true) (eq .Values.persistence.mountPVC true) )}} 
+      volumes:
+        {{- if (eq .Values.persistence.mountPVC true) }}
+      - name: {{ template "application.name" . }}-data
+        persistentVolumeClaim:
+          {{- if .Values.persistence.name }}
+          claimName: {{ .Values.persistence.name }}
+          {{- else }}
+          claimName: {{ template "application.name" . }}-data
+          {{- end }}
+        {{- end }}
+        {{- if .Values.statefulSet.volumes }}
+        {{- range $key, $value := .Values.statefulSet.volumes  }}
+      - name: {{ $key  }}
+{{ include "application.tplvalues.render" ( dict "value" $value "context" $ ) | indent 8 }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.rbac.serviceAccount.name }}
+      serviceAccountName: {{ .Values.rbac.serviceAccount.name }}
+        {{- else }}
+      serviceAccountName: {{ template "application.name" . }}
+      {{- end }}
+      {{- if .Values.statefulSet.hostNetwork }}
+      hostNetwork: {{ .Values.statefulSet.hostNetwork }}
+      {{- end }}
+      dnsPolicy: {{ .Values.statefulSet.dnsPolicy }}
+{{- end }}
