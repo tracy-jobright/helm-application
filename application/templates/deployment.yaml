@@ -143,6 +143,9 @@ spec:
         {{- if .Values.deployment.args }}
         args: {{- include "application.tplvalues.render" (dict "value" .Values.deployment.args "context" $) | nindent 12 }}
         {{- end }}
+        {{- if .Values.deployment.workingDir }}
+        workingDir: {{ .Values.deployment.workingDir }}
+        {{- end }}
         {{- if .Values.deployment.ports }}
         ports:
 {{ toYaml .Values.deployment.ports | indent 10 }}

@@ -104,6 +104,9 @@ deployment:
   # Secrets used to pull image
   imagePullSecrets: ""
 
+  # Working directory for the container
+  workingDir:
+
   # If want to mount Envs from configmap or secret
   envFrom:
   #    production-cm:
