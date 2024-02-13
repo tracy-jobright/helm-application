@@ -287,6 +287,9 @@ deployment:
   hostNetwork:
 
   dnsPolicy: ClusterFirst
+  lifecycle:
+    preStop: {}
+    postStart: {}
 
 ##########################################################
 # StatefulSet
