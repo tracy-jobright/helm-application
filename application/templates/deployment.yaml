@@ -156,16 +156,10 @@ spec:
         ports:
 {{ toYaml .Values.deployment.ports | indent 10 }}
         {{- end }}
-        {{- if .Values.deployment.lifecycle.postStart or .Values.deployment.lifecycle.preStop }}
+        {{- if .Values.deployment.lifecycle }}
         lifecycle:
-          {{- if .Values.deployment.lifecycle.preStop }}
-          preStop:
-            {{- toYaml .Values.deployment.lifecycle.preStop | nindent 10 }}
-          {{- end }}
-          {{- if .Values.deployment.lifecycle.postStart }}
-          postStart:
-            {{- toYaml .Values.deployment.lifecycle.postStart | nindent 10 }}
-          {{- end }}
+          {{- toYaml .Values.deployment.lifecycle | nindent 10 }}
+        {{- end }}
         {{- end }}
         {{- if .Values.deployment.envFrom }}
         envFrom:
