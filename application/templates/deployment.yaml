@@ -160,7 +160,6 @@ spec:
         lifecycle:
           {{- toYaml .Values.deployment.lifecycle | nindent 10 }}
         {{- end }}
-        {{- end }}
         {{- if .Values.deployment.envFrom }}
         envFrom:
         {{- range $value := .Values.deployment.envFrom }}
