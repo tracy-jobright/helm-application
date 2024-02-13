@@ -19,12 +19,6 @@ metadata:
   name: {{ template "application.name" . }}
   namespace: {{ include "application.namespace" . }}
 spec:
-{{- if .Values.deployment.minReadySeconds }}
-  minReadySeconds: {{ .Values.deployment.minReadySeconds }}
-{{- end }}
-{{- if .Values.deployment.terminationGracePeriodSeconds }}
-  terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
-{{- end }}
 {{- if .Values.deployment.replicas }}
   replicas: {{ .Values.deployment.replicas }}
 {{- end }}
@@ -76,6 +70,12 @@ spec:
           ]
 {{- end }}
     spec:
+      {{- if .Values.deployment.minReadySeconds }}
+      minReadySeconds: {{ .Values.deployment.minReadySeconds }}
+      {{- end }}
+      {{- if .Values.deployment.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
+      {{- end }}
       {{- if .Values.deployment.hostAliases }}
       hostAliases:      
 {{ toYaml .Values.deployment.hostAliases | indent 6 }}
