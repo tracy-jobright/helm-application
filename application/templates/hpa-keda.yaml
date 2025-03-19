@@ -16,11 +16,11 @@ metadata:
 spec:
   scaleTargetRef:
     name: {{ template "application.name" . }}
-    {{ if (.Values.statefulSet).enabled }}
+    {{- if (.Values.statefulSet).enabled }}
     kind: StatefulSet
-    {{ else }}
+    {{- else }}
     kind: Deployment
-    {{ end }}
+    {{- end }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
   triggers:
@@ -32,9 +32,9 @@ spec:
         scaleDown:
           stabilizationWindowSeconds: {{ .Values.autoscaling.keda.scaleDownStabilizationWindowSeconds }}
           policies:
-            {{- toYaml .Values.autoscaling.keda.scaleDownPolicies | nindent 8 }}
+            {{- toYaml .Values.autoscaling.keda.scaleDownPolicies | nindent 12 }}
         scaleUp:
           stabilizationWindowSeconds: {{ .Values.autoscaling.keda.scaleUpStabilizationWindowSeconds }}
           policies:
-            {{- toYaml .Values.autoscaling.keda.scaleUpPolicies | nindent 8 }}
+            {{- toYaml .Values.autoscaling.keda.scaleUpPolicies | nindent 12 }}
 {{- end }}
