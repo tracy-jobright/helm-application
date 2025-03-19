@@ -1,0 +1,40 @@
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ template "application.name" . }}
+  namespace: {{ include "application.namespace" . }}
+  labels:
+    {{- include "application.labels" . | nindent 4 }}
+    {{- with .Values.autoscaling.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if .Values.autoscaling.annotations }}
+  annotations:
+    {{- toYaml .Values.autoscaling.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    name: {{ template "application.name" . }}
+    {{ if (.Values.statefulSet).enabled }}
+    kind: StatefulSet
+    {{ else }}
+    kind: Deployment
+    {{ end }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicas }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
+  triggers:
+    {{- toYaml .Values.autoscaling.keda.triggers | nindent 4 }}
+  advanced:
+    restoreToOriginalReplicaCount: {{ .Values.autoscaling.keda.restoreToOriginalReplicaCount | default false }}
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: {{ .Values.autoscaling.keda.scaleDownStabilizationWindowSeconds }}
+          policies:
+            {{- toYaml .Values.autoscaling.keda.scaleDownPolicies | nindent 8 }}
+        scaleUp:
+          stabilizationWindowSeconds: {{ .Values.autoscaling.keda.scaleUpStabilizationWindowSeconds }}
+          policies:
+            {{- toYaml .Values.autoscaling.keda.scaleUpPolicies | nindent 8 }}
+{{- end }}

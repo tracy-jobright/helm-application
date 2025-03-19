@@ -858,6 +858,14 @@ autoscaling:
         target:
           type: Utilization
           averageUtilization: 60
+  
+  keda:
+    enabled: false
+    triggers: []
+    scaleDownStabilizationWindowSeconds: 300
+    scaleUpStabilizationWindowSeconds: 300
+    scaleDownPolicies: []
+    scaleUpPolicies: []
 
 ##########################################################
 # EndpointMonitor for IMC
