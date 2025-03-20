@@ -23,6 +23,9 @@ spec:
     {{- end }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
+  {{- if .Values.autoscaling.keda.idleReplicaCount }}
+  idleReplicaCount: {{ .Values.autoscaling.keda.idleReplicaCount }}
+  {{- end }}
   {{- if .Values.autoscaling.keda.cooldownPeriod }}
   cooldownPeriod: {{ .Values.autoscaling.keda.cooldownPeriod }}
   {{- end }}
