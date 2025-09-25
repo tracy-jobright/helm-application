@@ -41,6 +41,9 @@ spec:
           backend:
             service:
               name: {{ $applicationNameTpl }}
+              {{- if .serviceNamespace }}
+              namespace: {{ .serviceNamespace }}
+              {{- end }}
               port:
                 name: {{ default "http" (.servicePort) }}
         {{- end }}
