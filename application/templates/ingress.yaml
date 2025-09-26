@@ -33,7 +33,11 @@ spec:
             service:
               name: {{ default $applicationNameTpl (.serviceName) }}
               port:
+                {{- if .serviceNumberPort }}
+                number: {{ .serviceNumberPort }}
+                {{- else }}
                 name: {{ default "http" (.servicePort) }}
+                {{- end }}
         {{- end }}
         {{- else }}
         - path: "/"
