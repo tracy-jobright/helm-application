@@ -199,6 +199,10 @@ spec:
           requests:
             memory: {{ .Values.statefulSet.resources.requests.memory }}
             cpu: {{ .Values.statefulSet.resources.requests.cpu }}
+        {{- with .Values.statefulSet.resizePolicy }}
+        resizePolicy:
+{{ toYaml . | indent 8 }}
+        {{- end }}
         {{- if .Values.statefulSet.containerSecurityContext }}
         securityContext:
 {{ toYaml .Values.statefulSet.containerSecurityContext | indent 10 }}
