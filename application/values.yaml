@@ -242,6 +242,18 @@ deployment:
       memory: 128Mi
       cpu: 0.1
 
+  # Per-resource restart behavior for in-place pod resize (Kubernetes 1.27+
+  # alpha, 1.33+ beta/default-on). Without this block the API server applies
+  # NotRequired for both — meaning resource changes are applied to the running
+  # container with no restart. Set RestartContainer for cpu or memory if your
+  # app re-reads limits only at startup (most JVMs, runtimes pinned via
+  # GOMEMLIMIT/cgroup probes, etc.).
+  # resizePolicy:
+  #   - resourceName: cpu
+  #     restartPolicy: NotRequired
+  #   - resourceName: memory
+  #     restartPolicy: RestartContainer
+
   #  Security Context at Container Level
   containerSecurityContext:
     readOnlyRootFilesystem: true
@@ -488,6 +500,18 @@ statefulSet:
     requests:
       memory: 128Mi
       cpu: 0.1
+
+  # Per-resource restart behavior for in-place pod resize (Kubernetes 1.27+
+  # alpha, 1.33+ beta/default-on). Without this block the API server applies
+  # NotRequired for both — meaning resource changes are applied to the running
+  # container with no restart. Set RestartContainer for cpu or memory if your
+  # app re-reads limits only at startup (most JVMs, runtimes pinned via
+  # GOMEMLIMIT/cgroup probes, etc.).
+  # resizePolicy:
+  #   - resourceName: cpu
+  #     restartPolicy: NotRequired
+  #   - resourceName: memory
+  #     restartPolicy: RestartContainer
 
   #  Security Context at Container Level
   containerSecurityContext:
