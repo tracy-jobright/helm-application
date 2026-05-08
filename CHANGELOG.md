@@ -3,6 +3,10 @@
 
 All notable changes to this project will be documented here.
 
+### v2.3.0
+
+- Feature: Add `deployment.hostUsers` / `statefulSet.hostUsers` passthrough so callers can set `pod.spec.hostUsers` (required for `procMount: Unmasked` and unprivileged sandboxing). Omitted from rendered manifest unless explicitly set, so existing releases see no diff.
+
 ### v2.2.0
 
 - Fix: make deployment.image.tag and job.image.tag optional [PR-234](https://github.com/stakater/application/pull/234)
