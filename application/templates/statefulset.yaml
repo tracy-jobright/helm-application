@@ -244,5 +244,8 @@ spec:
       {{- if .Values.statefulSet.hostNetwork }}
       hostNetwork: {{ .Values.statefulSet.hostNetwork }}
       {{- end }}
+      {{- if hasKey .Values.statefulSet "hostUsers" }}
+      hostUsers: {{ .Values.statefulSet.hostUsers }}
+      {{- end }}
       dnsPolicy: {{ .Values.statefulSet.dnsPolicy }}
 {{- end }}

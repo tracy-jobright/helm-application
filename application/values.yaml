@@ -298,6 +298,14 @@ deployment:
   # Whether to use hostNetwork
   hostNetwork:
 
+  # Whether the pod uses the host's user namespace. Set to `false` to run
+  # the pod in its own user namespace — required for `procMount: Unmasked`
+  # under containerSecurityContext, and for unprivileged sandboxing tools
+  # (e.g. bubblewrap) that need to remount /proc inside the container.
+  # Omit (leave the key out entirely) to inherit the K8s default (true).
+  # Requires the UserNamespacesSupport feature gate (beta in 1.31, GA in 1.33).
+  # hostUsers: false
+
   dnsPolicy: ClusterFirst
   lifecycle:
     preStop:
@@ -556,6 +564,10 @@ statefulSet:
 
   # Whether to use hostNetwork
   hostNetwork:
+
+  # Whether the pod uses the host's user namespace. See deployment.hostUsers
+  # for the full description.
+  # hostUsers: false
 
   dnsPolicy: ClusterFirst
 
