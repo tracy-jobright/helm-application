@@ -260,12 +260,7 @@ spec:
         {{- end }}
       {{- end }}
         resources:
-          limits:
-            memory: {{ .Values.deployment.resources.limits.memory }}
-            cpu: {{ .Values.deployment.resources.limits.cpu }}
-          requests:
-            memory: {{ .Values.deployment.resources.requests.memory }}
-            cpu: {{ .Values.deployment.resources.requests.cpu }}
+{{ toYaml .Values.deployment.resources | indent 10 }}
         {{- with .Values.deployment.resizePolicy }}
         resizePolicy:
 {{ toYaml . | indent 8 }}

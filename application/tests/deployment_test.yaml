@@ -75,3 +75,15 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: example-image:example-tag@sha256:example-digest
+
+  - it: renders all configured resource types
+    set:
+      deployment.resources.requests.ephemeral-storage: 4Gi
+      deployment.resources.limits.ephemeral-storage: 8Gi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests["ephemeral-storage"]
+          value: 4Gi
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits["ephemeral-storage"]
+          value: 8Gi
